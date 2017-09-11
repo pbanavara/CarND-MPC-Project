@@ -11,6 +11,7 @@
 
 // for convenience
 using json = nlohmann::json;
+const double Lf = 2.67;
 
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
@@ -65,12 +66,33 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
   return result;
 }
 
+Eigen::VectorXd globalKinematic(Eigen::VectorXd state,
+                                  double delta, double a, double dt) {
+    Eigen::VectorXd next_state(state.size());
+
+    //TODO complete the next_state calculation ...
+    double x = state[0];
+    double y = state[1];
+    double psi = state[2];
+    double v = state[3];
+    double cte = state[4];
+    double epsi = state[5];
+
+    next_state[0] = x + v * cos(psi) * dt;
+    next_state[1] = y + v * sin(psi) * dt;
+    next_state[2] = psi + v/Lf * delta * dt;
+    next_state[3] = v + a * dt;
+    next_state[4] = cte + v * sin(epsi) * dt;
+    next_state[5] = epsi + v * (-delta) / Lf * dt;
+
+    return next_state;
+  }
+
 int main() {
   uWS::Hub h;
 
   // MPC is initialized here!
   MPC mpc;
-
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -91,6 +113,9 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
+          double delta = j[1]["steering_angle"];
+          double a = j[1]["throttle"];
+          //v *= 0.44704;
 
           /*
           * TODO: Calculate steering angle and throttle using MPC.
@@ -100,11 +125,11 @@ int main() {
           */
 
           for (int i=0; i<ptsx.size(); ++i) {
-            double shift_x = ptsx[i] - px;
-            double shift_y = ptsy[i] - py;
+            double dx = ptsx[i] - px;
+            double dy = ptsy[i] - py;
 
-            ptsx[i] = (shift_x * cos(0 - psi) - shift_y * sin(0 - psi));
-            ptsy[i] = (shift_y * sin(0 - psi) + shift_y * cos(0 - psi));
+            ptsx[i] = (dx * cos(0 - psi) - dy * sin(0 - psi));
+            ptsy[i] = (dy * cos(0 - psi) + dx * sin(0 - psi));
 
           }
           double *ptrx = &ptsx[0];
@@ -118,14 +143,13 @@ int main() {
           double cte = polyeval(coeffs, 0);
           double epsi = -atan(coeffs[1]);
 
-          double steer_value = j[1]["steering_angle"];
 
-          double throttle_value = j[1]["throttle"];
 
           Eigen::VectorXd state(6);
           state << 0, 0, 0, v, cte, epsi;
+          auto new_state = globalKinematic(state, delta, a, 0.1);
 
-          auto vars = mpc.Solve(state, coeffs);
+          auto vars = mpc.Solve(new_state, coeffs);
 
 
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.

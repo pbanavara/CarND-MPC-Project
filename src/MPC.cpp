@@ -49,8 +49,8 @@ class FG_eval {
 
     fg[0] = 0;
     for (int i = 0; i < N; i++) {
-      fg[0] += 2000 * CppAD::pow(vars[cte_start + i], 2);
-      fg[0] += 2000 * CppAD::pow(vars[epsi_start + i], 2);
+      fg[0] += 500 * CppAD::pow(vars[cte_start + i], 2);
+      fg[0] += 500 * CppAD::pow(vars[epsi_start + i], 2);
       fg[0] += CppAD::pow(vars[v_start + i] - ref_v, 2);
     }
     // Minimize the use of actuators
@@ -71,12 +71,12 @@ class FG_eval {
     fg[1 + cte_start] = vars[cte_start];
     fg[1 + epsi_start] = vars[epsi_start];
 
-    for (int i = 1; i < N ; i++) {
+    for (int i = 0; i < N-1 ; i++) {
       AD<double> x1 = vars[x_start + i + 1];
       AD<double> y1 = vars[y_start + i + 1];
       AD<double> psi1 = vars[psi_start + i + 1];
       AD<double> v1 = vars[v_start + i + 1];
-      AD<double> cte1 = vars[v_start + i + 1];
+      AD<double> cte1 = vars[cte_start + i + 1];
       AD<double> epsi1 = vars[epsi_start + i + 1];
 
       // psi, v, delta at time t + 1
@@ -84,7 +84,7 @@ class FG_eval {
       AD<double> y0 = vars[y_start + i];
       AD<double> psi0 = vars[psi_start + i];
       AD<double> v0 = vars[v_start + i];
-      AD<double> cte0 = vars[v_start + i];
+      AD<double> cte0 = vars[cte_start + i];
       AD<double> epsi0 = vars[epsi_start + i];
       AD<double> delta0 = vars[delta_start + i];
       AD<double> a0 = vars[a_start + i];
@@ -224,5 +224,5 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   }
 
-  return {};
+  return result;
 }
