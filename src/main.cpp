@@ -80,7 +80,7 @@ Eigen::VectorXd globalKinematic(Eigen::VectorXd state,
 
     next_state[0] = x + v * cos(psi) * dt;
     next_state[1] = y + v * sin(psi) * dt;
-    next_state[2] = psi + v/Lf * delta * dt;
+    next_state[2] = psi + v/Lf * (-delta) * dt;
     next_state[3] = v + a * dt;
     next_state[4] = cte + v * sin(epsi) * dt;
     next_state[5] = epsi + v * (-delta) / Lf * dt;
@@ -115,7 +115,7 @@ int main() {
           double v = j[1]["speed"];
           double delta = j[1]["steering_angle"];
           double a = j[1]["throttle"];
-          //v *= 0.44704;
+          v *= 0.44704;
 
           /*
           * TODO: Calculate steering angle and throttle using MPC.
