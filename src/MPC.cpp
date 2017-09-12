@@ -23,7 +23,7 @@ const double Lf = 2.67;
 
 double ref_cte = 0.0;
 double ref_epsi = 0.0;
-double ref_v = 100;
+double ref_v = 100 * 0.44704;
 size_t x_start = 0;
 size_t y_start = x_start + N;
 size_t psi_start = y_start + N;
@@ -55,7 +55,7 @@ class FG_eval {
     }
     // Minimize the use of actuators
     for(int i=0; i < N-1; i++) {
-      fg[0] += 14000 * CppAD::pow(vars[delta_start + i], 2);
+      fg[0] += 12000 * CppAD::pow(vars[delta_start + i], 2);
       fg[0] += CppAD::pow(vars[a_start], 2);
 
     }
