@@ -71,16 +71,16 @@ Eigen::VectorXd globalKinematic(Eigen::VectorXd state,
     Eigen::VectorXd next_state(state.size());
 
     //TODO complete the next_state calculation ...
-    double x = state[0];
-    double y = state[1];
-    double psi = state[2];
-    double v = state[3];
-    double cte = state[4];
-    double epsi = state[5];
+    //const double x = state[0];
+    //const double y = state[1];
+    const double psi = state[2];
+    const double v = state[3];
+    const double cte = state[4];
+    const double epsi = state[5];
 
-    next_state[0] = x + v * cos(psi) * dt;
-    next_state[1] = y + v * sin(psi) * dt;
-    next_state[2] = psi + v/Lf * (-delta) * dt;
+    next_state[0] = v * cos(psi) * dt;
+    next_state[1] = v * sin(psi) * dt;
+    next_state[2] = v/Lf * (-delta) * dt;
     next_state[3] = v + a * dt;
     next_state[4] = cte + v * sin(epsi) * dt;
     next_state[5] = epsi + v * (-delta) / Lf * dt;

@@ -32,7 +32,8 @@ size_t cte_start = v_start + N;
 size_t epsi_start = cte_start + N;
 size_t delta_start = epsi_start + N;
 size_t a_start = delta_start + N - 1;
-
+size_t prevDelta = epsi_start + N;
+size_t prevA = delta_start + N -1;
 
 class FG_eval {
  public:
@@ -152,6 +153,11 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   }
   // Lower and upper limits for the constraints
   // Should be 0 besides initial state.
+  vars_lowerbound[delta_start]=prevDelta;
+  vars_upperbound[delta_start]=prevDelta;
+  vars_lowerbound[a_start]=prevA;
+  vars_upperbound[a_start]=prevA;
+
   Dvector constraints_lowerbound(n_constraints);
   Dvector constraints_upperbound(n_constraints);
   for (int i = 0; i < n_constraints; i++) {
@@ -214,8 +220,10 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
   vector<double> result;
-  result.push_back(solution.x[delta_start]);
-  result.push_back(solution.x[a_start]);
+  result.push_back(solution.x[delta_start + 1]);
+  result.push_back(solution.x[a_start + 1]);
+  prevDelta=solution.x[delta_start+1];
+  prevA=solution.x[a_start+1];
 
   for (int i = 0;i < N-1; i++) {
     result.push_back(solution.x[x_start + i + 1]);
